@@ -1,12 +1,13 @@
 const EPS = 1e-6;
 const NEAR_CLIPPING_PLANE = 0.1;
-const FAR_CLIPPING_PLANE = 10.0;
+const FAR_CLIPPING_PLANE = 66.0;
 const FOV = Math.PI * 0.5;
 const COS_OF_HALF_FOV = Math.cos(FOV * 0.5);
 const PLAYER_STEP_LEN = 0.5;
 const PLAYER_SPEED = 2;
 const PLAYER_SIZE = 0.5;
 const SPRITE_SIZE = 0.3;
+const SHADOW_ENABLED = 1;
 export class RGBA {
     r;
     g;
@@ -183,6 +184,8 @@ const SCENE_FLOOR1 = new RGBA(0.094, 0.094 + 0.05, 0.094 + 0.05, 1.0);
 const SCENE_FLOOR2 = new RGBA(0.188, 0.188 + 0.05, 0.188 + 0.05, 1.0);
 const SCENE_CEILING1 = new RGBA(0.094 + 0.05, 0.094, 0.094, 1.0);
 const SCENE_CEILING2 = new RGBA(0.188 + 0.05, 0.188, 0.188, 1.0);
+const SCENE_PM_CEILING = new RGBA(0.0, 0.0, 0.0, 1.0);
+const SCENE_PM_FLOOR = new RGBA(0.0, 0.0, 0.0, 1.0);
 export function createScene(walls) {
     const scene = {
         height: walls.length,
@@ -212,20 +215,10 @@ function sceneGetTile(scene, p) {
     return scene.walls[Math.floor(p.y) * scene.width + Math.floor(p.x)];
 }
 function sceneGetFloor(p) {
-    if ((Math.floor(p.x) + Math.floor(p.y)) % 2 == 0) {
-        return SCENE_FLOOR1;
-    }
-    else {
-        return SCENE_FLOOR2;
-    }
+    return SCENE_PM_FLOOR;
 }
 function sceneGetCeiling(p) {
-    if ((Math.floor(p.x) + Math.floor(p.y)) % 2 == 0) {
-        return SCENE_CEILING1;
-    }
-    else {
-        return SCENE_CEILING2;
-    }
+    return SCENE_PM_CEILING;
 }
 function sceneIsWall(scene, p) {
     const c = sceneGetTile(scene, p);
@@ -279,7 +272,7 @@ function playerFovRange(player) {
 function renderMinimap(ctx, player, scene, sprites) {
     ctx.save();
     const position = canvasSize(ctx).scale(0.03);
-    const cellSize = ctx.canvas.width * 0.03;
+    const cellSize = ctx.canvas.width * 0.01;
     const size = sceneSize(scene).scale(cellSize);
     const gridSize = sceneSize(scene);
     ctx.translate(position.x, position.y);
@@ -343,7 +336,7 @@ function renderMinimap(ctx, player, scene, sprites) {
 }
 function renderFPS(ctx, deltaTime) {
     ctx.font = "48px bold";
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "gray";
     ctx.fillText(`${Math.floor(1 / deltaTime)}`, 100, 100);
 }
 function renderWalls(display, player, scene) {
@@ -357,7 +350,7 @@ function renderWalls(display, player, scene) {
         display.zBuffer[x] = v.dot(d);
         if (cell instanceof RGBA) {
             const stripHeight = display.backImageData.height / display.zBuffer[x];
-            const shadow = 1 / display.zBuffer[x] * 2;
+            const shadow = SHADOW_ENABLED * 1 / display.zBuffer[x] * 2;
             for (let dy = 0; dy < Math.ceil(stripHeight); ++dy) {
                 const y = Math.floor((display.backImageData.height - stripHeight) * 0.5) + dy;
                 const destP = (y * display.backImageData.width + x) * 4;
@@ -523,7 +516,6 @@ export function renderGame(display, deltaTime, player, scene, sprites) {
     renderWalls(display, player, scene);
     renderSprites(display, player, sprites);
     displaySwapBackImageData(display);
-    renderMinimap(display.ctx, player, scene, sprites);
     renderFPS(display.ctx, deltaTime);
 }
 //# sourceMappingURL=game.js.map

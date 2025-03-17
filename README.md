@@ -1,8 +1,8 @@
-# Raycasting in TypeScript
+# KOIL 6:06
 
 ![screenshot](./screenshot.png)
 
-My take on Raycasting inspired by Lode's Computer Graphics Tutorial: https://lodev.org/cgtutor/raycasting.html
+[PM 6:06](https://www.roblox.com/games/6033508889/PM-6-06) but on the Koil engine
 
 GitHub Pages: https://tsoding.github.io/raycasting/
 

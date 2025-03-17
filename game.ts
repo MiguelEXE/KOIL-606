@@ -12,13 +12,14 @@
 // hot-reloaded. Examples are State and Player which we defined as interfaces.
 const EPS = 1e-6;
 const NEAR_CLIPPING_PLANE = 0.1;
-const FAR_CLIPPING_PLANE = 10.0;
+const FAR_CLIPPING_PLANE = 66.0;
 const FOV = Math.PI*0.5;
 const COS_OF_HALF_FOV = Math.cos(FOV*0.5);
 const PLAYER_STEP_LEN = 0.5;
 const PLAYER_SPEED = 2;
 const PLAYER_SIZE = 0.5
 const SPRITE_SIZE = 0.3
+const SHADOW_ENABLED = 1;
 
 export class RGBA {
     r: number;
@@ -220,6 +221,10 @@ const SCENE_FLOOR2 = new RGBA(0.188, 0.188 + 0.05, 0.188 + 0.05, 1.0);
 const SCENE_CEILING1 = new RGBA(0.094 + 0.05, 0.094, 0.094, 1.0);
 const SCENE_CEILING2 = new RGBA(0.188 + 0.05, 0.188, 0.188, 1.0);
 
+// PM 6:06 CONFIG
+const SCENE_PM_CEILING = new RGBA(0.0, 0.0, 0.0, 1.0);
+const SCENE_PM_FLOOR = new RGBA(0.0, 0.0, 0.0, 1.0);
+
 export interface Scene {
     walls: Array<Tile>;
     width: number;
@@ -258,19 +263,21 @@ function sceneGetTile(scene: Scene, p: Vector2): Tile | undefined {
 }
 
 function sceneGetFloor(p: Vector2): Tile | undefined {
-    if ((Math.floor(p.x) + Math.floor(p.y))%2 == 0) {
+    /*if ((Math.floor(p.x) + Math.floor(p.y))%2 == 0) {
         return SCENE_FLOOR1;
     } else {
         return SCENE_FLOOR2;
-    }
+    }*/
+   return SCENE_PM_FLOOR;
 }
 
 function sceneGetCeiling(p: Vector2): Tile | undefined {
-    if ((Math.floor(p.x) + Math.floor(p.y))%2 == 0) {
+    /*if ((Math.floor(p.x) + Math.floor(p.y))%2 == 0) {
         return SCENE_CEILING1;
     } else {
         return SCENE_CEILING2;
-    }
+    }*/
+   return SCENE_PM_CEILING;
 }
 
 function sceneIsWall(scene: Scene, p: Vector2): boolean {
@@ -341,7 +348,7 @@ function renderMinimap(ctx: CanvasRenderingContext2D, player: Player, scene: Sce
     ctx.save();
 
     const position = canvasSize(ctx).scale(0.03);
-    const cellSize = ctx.canvas.width*0.03;
+    const cellSize = ctx.canvas.width*0.01;
     const size = sceneSize(scene).scale(cellSize);
     const gridSize = sceneSize(scene);
 
@@ -422,7 +429,7 @@ function renderMinimap(ctx: CanvasRenderingContext2D, player: Player, scene: Sce
 
 function renderFPS(ctx: CanvasRenderingContext2D, deltaTime: number) {
     ctx.font = "48px bold"
-    ctx.fillStyle = "white"
+    ctx.fillStyle = "gray"
     ctx.fillText(`${Math.floor(1/deltaTime)}`, 100, 100);
 }
 
@@ -437,7 +444,7 @@ function renderWalls(display: Display, player: Player, scene: Scene) {
         display.zBuffer[x] = v.dot(d);
         if (cell instanceof RGBA) {
             const stripHeight = display.backImageData.height/display.zBuffer[x];
-            const shadow = 1/display.zBuffer[x]*2;
+            const shadow = SHADOW_ENABLED * 1/display.zBuffer[x]*2;
             for (let dy = 0; dy < Math.ceil(stripHeight); ++dy) {
                 const y = Math.floor((display.backImageData.height - stripHeight)*0.5) + dy;
                 const destP = (y*display.backImageData.width + x)*4;
@@ -633,6 +640,6 @@ export function renderGame(display: Display, deltaTime: number, player: Player, 
     renderSprites(display, player, sprites);
     displaySwapBackImageData(display);
 
-    renderMinimap(display.ctx, player, scene, sprites);
+    //renderMinimap(display.ctx, player, scene, sprites);
     renderFPS(display.ctx, deltaTime);
 }

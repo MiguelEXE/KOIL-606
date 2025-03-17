@@ -28,7 +28,7 @@ function cmd(program, args) {
 }
 
 cmd('tsc', ['-w'])
-cmd('http-server', ['-p', '6969', '-a', '127.0.0.1', '-s', '-c-1'])
+cmd('http-server', ['-p', '6969', '-a', '-s', '-c-1'])
 
 const wss = new WebSocketServer({
   port: 6970,
