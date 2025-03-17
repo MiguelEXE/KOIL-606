@@ -31,7 +31,7 @@ let musicPlaying = false;
     if (ctx === null) throw new Error("2D context is not supported");
     ctx.imageSmoothingEnabled = false;
 
-    const music = new Audio("/assets/sounds/lavender.ogg");
+    const music = new Audio("assets/sounds/lavender.ogg");
     music.loop = true;
     music.load();
 
